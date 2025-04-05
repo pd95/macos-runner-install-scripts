@@ -36,7 +36,7 @@ cp "../assets/add-certificate.swift" "$IMAGE_FOLDER/add-certificate.swift"
 cp "../assets/bashrc" "$HOME/.bashrc"
 cp "../assets/bashprofile" "$HOME/.bash_profile"
 cp -r "../assets/bootstrap-provisioner/" "$HOME/bootstrap"
-cp "../toolsets/toolset-15.json" "$IMAGE_FOLDER/toolset.json"
+cp "../toolsets/toolset-${os_version}.json" "$IMAGE_FOLDER/toolset.json"
 
 # Move and setup utilities
 mv "$IMAGE_FOLDER/docs-gen" "$IMAGE_FOLDER/software-report"

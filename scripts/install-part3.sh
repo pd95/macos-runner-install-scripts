@@ -39,7 +39,7 @@ pwsh -f ../scripts/build/Configure-Xcode-Simulators.ps1
 
 # Run software report and tests
 source "$HOME/.bash_profile"
-export IMAGE_VERSION="${build_id}"
+export BUILD_ID="${build_id}"
 pwsh -File "$IMAGE_FOLDER/software-report/Generate-SoftwareReport.ps1" -OutputDirectory "$IMAGE_FOLDER/output/software-report" -ImageName "$BUILD_ID"
 pwsh -File "$IMAGE_FOLDER/tests/RunAll-Tests.ps1"
 
