@@ -98,7 +98,7 @@ bash -l install-part1.sh | tee -a install-part1.log
 ```
 
 The script `install-part1.sh` checks the repository and copies some files, then starts installing the tools: Command Line Tools, Homebrew, Rosetta using the official scripts from GitHub Action runner-images.
-While running the scripts, you will be prompted multiple times to provide the password for your runner user.
+While running the scripts, **you will be prompted** multiple times **to provide the password** for your runner user, so please stay close and check the process regularly.
 
 ```text
 Installing Command Line Tools...
@@ -151,19 +151,43 @@ Rebooting system...
 
 ## Preparing Xcode for installation
 
-While the script is doing its work, you can open up the file **~/image-generation/toolset.json**. This file contains all the software tools and versions the image would try to install. It is now our chance to adjust it and get rid of the many Xcode versions we don't use! E.e. I only install Xcode 15.4 and Xcode 16.2.  
-Further I go to [xcodereleases.com](https://xcodereleases.com/?scope=release) to download the Xcode versions you want to install.
+While the script is doing its work, you can open up the file **~/image-generation/toolset.json**. This file contains all the software tools and versions the image would try to install. It is now our chance to adjust it and get rid of the many Xcode versions we don't use! E.e. I only install Xcode 16.3 and remove the unused watchOS, tvOS and visionOS simulators.
+
+This is how my "xcode" setup part looked like after removing unnecessary parts (no "x64", only Xcode 16.3, set 16.3 as default Xcode version, installing only the "default set" of iOS Simulator runtimes):
+
+```json
+{
+    "xcode": {
+        "default": "16.3",
+        "arm64":{
+            "versions": [
+                {
+                    "link": "16.3", 
+                    "version": "16.3+16E140",
+                    "sha256": "c593177b73e45f31e1cf7ced131760d8aa8e1532f5bbf8ba11a4ded01da14fbb",
+                    "install_runtimes": [
+                        { "iOS": "default" }
+                    ]
+                }
+            ]
+        }
+    },    
+
+...
+}
+```
+
+Further you can go to [xcodereleases.com](https://xcodereleases.com/?scope=release) to download the Xcode binaries (XIP files) for the versions you choosed to install. Place the files into a folder accessible by your VM (e.g. the  "SharedVirtualBuddy" folder we created initially and shared with the VM before) and make sure that the `xcode_install_storage_path` variable in `config.sh` is pointing to the directory!
 
 Each downloaded Xcode XIP file hast to be renamed according the following scheme:
 
     Xcode-`version`+`build`.xip  
-So for example the downloaded `Xcode_16.2.xip` has to be renamed to `Xcode-16.2+16C5032a.xip` and `Xcode_15.4.xip` to `Xcode-15.4.0+15F31d.xip`.
 
-Place those files into a folder accessible by your VM (e.g. the  "SharedVirtualBuddy" folder we created initially and shared with the VM before) and make sure that the `xcode_install_storage_path` variable in `config.sh` is pointing to the directory!
+So for example the downloaded `Xcode_16.2.xip` has to be renamed to `Xcode-16.2+16C5032a.xip` and `Xcode_16.3.xip` to `Xcode-16.3+16E140.xip`.
 
 ## Installing software (part 2)
 
-After the reboot and downloading the Xcode versions we would like to install (**don't forget to ajdust the toolset.json as [mentioned above!](#preparing-xcode-for-installation)**), we can continue with the next script: `install-part2.sh`
+After the reboot and downloading the Xcode versions we would like to install (**don't forget to ajdust the toolset.json as [mentioned above!](#preparing-xcode-for-installation)**), we can continue with the next part of the installation: `install-part2.sh`
 
 Log in to the VM using VirtualBuddy using the runner user (because some scripts are not working properly if the user is not logged in!).
 
@@ -174,7 +198,7 @@ cd ~/Downloads/macos-runner-install-scripts-main/scripts
 bash -l install-part2.sh | tee -a install-part2.log
 ```
 
-It installs powershell, Mono (on macOS 14 only), .Net, Python, Ruby, Git, Node and more... Finally it extracts and installs the Xcode binaries located in the directory ~/Desktop/VirtualBuddyShared/SharedVirtualBuddy/Xcode-Binaries/.
+It installs powershell, Mono (on macOS 14 only), .Net, Python, Ruby, Git, Node and more... Finally it extracts and installs the Xcode binaries according to the specified toolset configuration.
 
 ```text
 Continuing post-reboot installation...
@@ -305,24 +329,23 @@ System going down in 1 minute
 
 ### Re-setting a reasonable VM name
 
-After the process of installing software finished, the VM has been modified to some random looking name. So its good to go back to the "System Settings" app to modify under "General > About" the name of your mac to something like macos15-runner
+After the process of installing software finished, the VM has been modified to some random looking name like "Mac-1743927115539". So its good to go back to the "System Settings" app under "General > About" to modify the name to something like "macos15-runner".
 
 ### Enabling/registering your runner
 
-Now that you have installed a personal macOS runner for GitHub, you can follow the [official documentation to register it](https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/adding-self-hosted-runners).
+Now that you have installed a personal macOS runner for GitHub, you can follow the [official documentation to register it](https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/adding-self-hosted-runners). (Or go to your projects/organizations "Settings" screen to "Actions > Runners" if you have already experience.)
 
-As the action runner software is already installed, we can directly install it:
+As the action runner software is already downloaded, we can directly install it:
 
 ```bash
 mkdir ~/actions-runner && cd ~/actions-runner
-tar xzf /opt/runner-cache/actions-runner-osx-arm64-2.323.0.tar.gz
+tar xzf /opt/runner-cache/actions-runner-osx-*.tar.gz
 ```
 
-Afterwards you have to configure and register it with your repository or enterprise account:
+Afterwards you have to configure and register it with your repository or enterprise account: **make sure you use the token issued by GitHub!**
 
 ```bash
 ./config.sh --url https://github.com/pd95/Simple --token ABC123XYZBLABLA
-./run.sh
 ```
 
 Now you can test it!
@@ -344,6 +367,40 @@ You can check the service status anytime later using:
 ./svc.sh status
 ```
 
+To stop and uninstall the service you can execute:
+
+```bash
+./svc.sh stop
+./svc.sh uninstall
+```
+
+### Configure custom scripts before and/or after a build job
+
+If you want to have some preparation/cleanup after each build job, you can follow the official documentation on [Running scripts before or after a job][gh-running-job-scripts]. In short, follow the steps below:
+
+1. Create two shell script files `job_started.sh` and `job_completed.sh` which do the necessary work of preparing before or cleaning up after a build job. For example with the following statement:
+
+       echo "$0: script to prepare/cleanup the build action '$GITHUB_WORKFLOW' of repository '$GITHUB_REPOSITORY' ref '$GITHUB_REF'"
+
+2. Go to your `~/actions-runner` directory and edit the `.env` file and add the following entries:
+
+       ACTIONS_RUNNER_HOOK_JOB_STARTED=/Users/runner/job_started.sh
+       ACTIONS_RUNNER_HOOK_JOB_COMPLETED=/Users/runner/job_completed.sh
+
+3. Restart the active runner:
+    - If you use `run.sh`:  
+      - press CTRL+C in the Terminal window to stop the process
+      - execute `./run.sh` to start it again
+
+    - If you use the service `svc.sh`:
+
+      ```bash
+      cd ~/actions-runner
+      ./svc.sh stop
+      ./svc.sh start
+      ```
+
+
 ## Links
 
 - Documentation: [GitHub Managing self-hosted runners][gh-doc-self-hosted-runner]
@@ -353,5 +410,6 @@ You can check the service status anytime later using:
 
 [gh-doc-self-hosted-runner]: https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners
 [gh-runner-image]: https://github.com/actions/runner-images/
+[gh-running-job-scripts]: https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/running-scripts-before-or-after-a-job
 [article-setup-macos-runner]: https://medium.com/@shohruhs/setup-your-own-github-actions-self-hosted-macos-runner-on-apple-m1-mac-0ae367f57813
 [software-virtualbuddy]: https://github.com/insidegui/VirtualBuddy
