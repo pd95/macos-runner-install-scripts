@@ -382,7 +382,7 @@ If you want to have some preparation/cleanup after each build job, you can follo
 
        echo "$0: script to prepare/cleanup the build action '$GITHUB_WORKFLOW' of repository '$GITHUB_REPOSITORY' ref '$GITHUB_REF'"
 
-2. Go to your `~/actions-runner` directory and edit the `.env` file and add the following entries:
+2. Go to your `~/actions-runner` directory open the `.env` file and add the following two entries:
 
        ACTIONS_RUNNER_HOOK_JOB_STARTED=/Users/runner/job_started.sh
        ACTIONS_RUNNER_HOOK_JOB_COMPLETED=/Users/runner/job_completed.sh
@@ -404,12 +404,13 @@ If you want to have some preparation/cleanup after each build job, you can follo
 ## Links
 
 - Documentation: [GitHub Managing self-hosted runners][gh-doc-self-hosted-runner]
+- Documentation: [GitHub Running scripts before or after a job][gh-running-job-scripts]
 - Software: [GitHub Actions runner images][gh-runner-image]
-- Article: [Setup your own GitHub Actions self-hosted macOS runner on Apple M1 Mac][article-setup-macos-runner] by Shokhrukh Yursunjonov
 - Software: [VirtualBuddy on GitHub][software-virtualbuddy] by insidegui
+- Article: [Setup your own GitHub Actions self-hosted macOS runner on Apple M1 Mac][article-setup-macos-runner] by Shokhrukh Yursunjonov
 
 [gh-doc-self-hosted-runner]: https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners
-[gh-runner-image]: https://github.com/actions/runner-images/
 [gh-running-job-scripts]: https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/running-scripts-before-or-after-a-job
-[article-setup-macos-runner]: https://medium.com/@shohruhs/setup-your-own-github-actions-self-hosted-macos-runner-on-apple-m1-mac-0ae367f57813
+[gh-runner-image]: https://github.com/actions/runner-images/
 [software-virtualbuddy]: https://github.com/insidegui/VirtualBuddy
+[article-setup-macos-runner]: https://medium.com/@shohruhs/setup-your-own-github-actions-self-hosted-macos-runner-on-apple-m1-mac-0ae367f57813
